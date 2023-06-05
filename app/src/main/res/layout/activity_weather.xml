@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--引入now、forecast、life_index布局-->
+<!--    使用ScrollView就可以通过滚动的方式查看屏幕以外的内容-->
+<!--    一开始的时候我们是将ScrollView隐藏起来的-->
+<!--    等到天气数据请求成功之后，会通过代码的方式再将ScrollView显示出来。-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weatherLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:visibility="invisible">
+<!--    在LinearLayout中将刚才定义的所有布局逐个引入-->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include layout="@layout/now" />
+        <include layout="@layout/forecast" />
+        <include layout="@layout/life_index" />
+    </LinearLayout>
+</ScrollView>

@@ -6,6 +6,18 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 object SunnyWeatherNetwork {
+    //使用ServiceCreator创建了一个weatherService接口的动态代理对象
+    private val weatherService = ServiceCreator.create(WeatherService::class.java)
+    //调用刚刚在PlaceService接口中定义的searchPlaces()方法
+    //发起搜索DailyWeather请求
+    //传递 lng 和 lat 参数,分别代表经度纬度
+    suspend fun getDailyWeather(lng: String, lat: String) =
+        weatherService.getDailyWeather(lng, lat).await()
+    //发起搜索RealtimeWeather请求
+    suspend fun getRealtimeWeather(lng: String, lat: String) =
+        weatherService.getRealtimeWeather(lng, lat).await()
+
+
     //使用ServiceCreator创建了一个PlaceService接口的动态代理对象
     private val placeService = ServiceCreator.create<PlaceService>()
     //调用刚刚在PlaceService接口中定义的searchPlaces()方法
