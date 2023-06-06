@@ -1,5 +1,7 @@
 package com.example.anew.ui.weather
 
+
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,10 +12,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.anew.R
 import com.example.anew.logic.model.Weather
 import com.example.anew.logic.model.getSky
-import com.example.anew.databinding.ForecastBinding
-import com.example.anew.databinding.ActivityWeatherBinding
-import com.example.anew.databinding.LifeIndexBinding
-import com.example.anew.databinding.NowBinding
+//import com.example.anew.databinding.ForecastBinding
+//import com.example.anew.databinding.ActivityWeatherBinding
+//import com.example.anew.databinding.LifeIndexBinding
+//import com.example.anew.databinding.NowBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,6 +25,13 @@ class WeatherActivity : AppCompatActivity() {
     val viewModel by lazy { ViewModelProvider(this).get(WeatherViewModel::class.java) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //调用了getWindow().getDecorView()方法拿到当前Activity的DecorView
+        val decorView = window.decorView
+        //调用setSystemUiVisibility()方法来改变系统UI的显示
+        //让Activity的布局显示在状态栏上面
+        decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        //调用setStatusBarColor()方法将状态栏设置成透明色
+        window.statusBarColor = Color.TRANSPARENT
         //首先从Intent中取出经纬度坐标和地区名称，并赋值到WeatherViewModel的相应变量中
         setContentView(R.layout.activity_weather)
         if (viewModel.locationLng.isEmpty()) {

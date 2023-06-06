@@ -23,6 +23,10 @@ class PlaceViewModel : ViewModel() {
     fun searchPlaces(query: String) {
         searchLiveData.value = query
     }
+    // 具体的功能的实现要到PlaceAdapter
+    fun savePlace(place: Place) = Repository.savePlace(place)
+    fun getSavedPlace() = Repository.getSavedPlace()
+    fun isPlaceSaved() = Repository.isPlaceSaved()
 }
 //在转换函数中，我们只需要调用仓库层中定义的searchPlaces()方法就可以发起网络请求
 //同时将仓库层返回的LiveData对象转换成一个可供Activity观察的LiveData对象

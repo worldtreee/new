@@ -13,6 +13,7 @@ import com.example.anew.ui.weather.WeatherActivity
 
 //PlaceAdapter与RecyclerView结合使用
 //以便在界面中显示地点列表的项视图，并根据数据源（地点列表）进行更新
+//传入PlaceFragment 就可以调用PlaceFragment所对应的PlaceViewModel
 class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: List<Place>) :
     RecyclerView.Adapter<PlaceAdapter.ViewHolder>() {
     // 内部类 ViewHolder，用于持有项视图中的控件引用
@@ -38,6 +39,8 @@ class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: L
                 putExtra("location_lat", place.location.lat)
                 putExtra("place_name", place.name)
             }
+            //跳转到WeatherActivity之前，先调用PlaceViewModel的savePlace()方法来存储选中的城市
+            fragment.viewModel.savePlace(place)
             //调用Fragment的startActivity()方法启动WeatherActivity
             fragment.startActivity(intent)
             fragment.activity?.finish()
