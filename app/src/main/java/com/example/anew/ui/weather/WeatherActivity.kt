@@ -1,32 +1,40 @@
 package com.example.anew.ui.weather
 
 
+import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.anew.R
+import com.example.anew.logic.Repository.refreshWeather
 import com.example.anew.logic.model.Weather
 import com.example.anew.logic.model.getSky
-//import com.example.anew.databinding.ForecastBinding
-//import com.example.anew.databinding.ActivityWeatherBinding
-//import com.example.anew.databinding.LifeIndexBinding
-//import com.example.anew.databinding.NowBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
 //在WeatherActivity中请求天气数据
 //并将数据展示到界面上
 class WeatherActivity : AppCompatActivity() {
+
+
+//    val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
+
     val viewModel by lazy { ViewModelProvider(this).get(WeatherViewModel::class.java) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //调用了getWindow().getDecorView()方法拿到当前Activity的DecorView
         val decorView = window.decorView
+
         //调用setSystemUiVisibility()方法来改变系统UI的显示
         //让Activity的布局显示在状态栏上面
         decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -43,6 +51,7 @@ class WeatherActivity : AppCompatActivity() {
         if (viewModel.placeName.isEmpty()) {
             viewModel.placeName = intent.getStringExtra("place_name") ?: ""
         }
+        val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
         //对weatherLiveData对象进行观察
         //当获取到服务器返回的天气数据时，就调用showWeatherInfo()方法进行解析与展示
         viewModel.weatherLiveData.observe(this, Observer { result ->
@@ -53,9 +62,37 @@ class WeatherActivity : AppCompatActivity() {
                 Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
                 result.exceptionOrNull()?.printStackTrace()
             }
+            //刷新事件结束，并隐藏刷新进度条
+            swipeRefresh.isRefreshing = false
         })
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        refreshWeather()
+        swipeRefresh.setOnRefreshListener {
+            refreshWeather()
+        }
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
+        val navBtn: Button = findViewById(R.id.navBtn)
+        navBtn.setOnClickListener {
+            //在切换城市按钮的点击事件中调用DrawerLayout的openDrawer()方法来打开滑动菜单
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerOpened(drawerView: View) {}
+            override fun onDrawerClosed(drawerView: View) {
+                val manager = getSystemService(Context.INPUT_METHOD_SERVICE)
+                        as InputMethodManager
+                manager.hideSoftInputFromWindow(drawerView.windowToken,
+                    InputMethodManager.HIDE_NOT_ALWAYS)
+            }
+        })
+    }
+    fun refreshWeather() {
+        val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
         //调用了WeatherViewModel的refreshWeather()方法来执行一次刷新天气的请求
         viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
+        swipeRefresh.isRefreshing = true
     }
     //从Weather对象中获取数据，然后显示到相应的控件上
     private fun showWeatherInfo(weather: Weather.Weather) {

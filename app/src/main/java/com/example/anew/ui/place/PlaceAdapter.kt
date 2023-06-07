@@ -5,11 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.drawerlayout.widget.DrawerLayout
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.anew.R
 import com.example.anew.logic.model.Place
 import com.example.anew.ui.weather.WeatherActivity
+
+private val WeatherActivity.drawerLayout: DrawerLayout
+    get() {
+        return findViewById(R.id.drawerLayout)
+    }
 
 //PlaceAdapter与RecyclerView结合使用
 //以便在界面中显示地点列表的项视图，并根据数据源（地点列表）进行更新
@@ -28,22 +34,39 @@ class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: L
         val view = LayoutInflater.from(parent.context).inflate(R.layout.place_item, parent, false)
         //从搜索城市界面跳转到天气界面
         val holder = ViewHolder(view)
+
         //给place_item.xml的最外层布局注册了一个点击事件监听器
         holder.itemView.setOnClickListener {
             //点击事件中获取当前点击项的经纬度坐标和地区名称
             val position = holder.adapterPosition
             val place = placeList[position]
-            //把它们传入Intent
-            val intent = Intent(parent.context, WeatherActivity::class.java).apply {
-                putExtra("location_lng", place.location.lng)
-                putExtra("location_lat", place.location.lat)
-                putExtra("place_name", place.name)
+            val activity = fragment.activity
+            if (activity is WeatherActivity) {
+                //如果是在WeatherActivity中
+                //那么就关闭滑动菜单,给WeatherViewMode赋值新的经纬度坐标和地区名称
+                //然后刷新城市的天气信息
+
+                activity.drawerLayout.closeDrawers()
+                activity.viewModel.locationLng = place.location.lng
+                activity.viewModel.locationLat = place.location.lat
+                activity.viewModel.placeName = place.name
+                activity.refreshWeather()
+            }
+            else{
+                //把它们传入Intent
+                val intent = Intent(parent.context, WeatherActivity::class.java).
+                    //用上次保留的place信息
+                apply {
+                    putExtra("location_lng", place.location.lng)
+                    putExtra("location_lat", place.location.lat)
+                    putExtra("place_name", place.name)
+                }
+                //调用Fragment的startActivity()方法启动WeatherActivity
+                fragment.startActivity(intent)
+                fragment.activity?.finish()
             }
             //跳转到WeatherActivity之前，先调用PlaceViewModel的savePlace()方法来存储选中的城市
             fragment.viewModel.savePlace(place)
-            //调用Fragment的startActivity()方法启动WeatherActivity
-            fragment.startActivity(intent)
-            fragment.activity?.finish()
         }
         return holder
     }

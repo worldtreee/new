@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.anew.MainActivity
 import com.example.anew.R
 import com.example.anew.ui.weather.WeatherActivity
 
@@ -43,7 +44,8 @@ class PlaceFragment : Fragment() {
         //对存储的状态进行判断和读取
         //如果当前已有存储的城市数据，那么就获取已存储的数据并解析成Place对象
         //然后使用它的经纬度坐标和城市名直接跳转并传递给WeatherActivity
-        if (viewModel.isPlaceSaved()) {
+        //当PlaceFragment被嵌入MainActivity 中，并且之前已经存在选中的城市，此时才会直接跳转到WeatherActivity
+        if (activity is MainActivity && viewModel.isPlaceSaved()) {
             val place = viewModel.getSavedPlace()
             val intent = Intent(context, WeatherActivity::class.java).apply {
                 putExtra("location_lng", place.location.lng)
